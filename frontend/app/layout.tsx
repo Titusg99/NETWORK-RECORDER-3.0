@@ -30,7 +30,6 @@ const navItems = [
   { text: 'Forms', icon: <InsertDriveFileIcon />, href: '/forms' },
   { text: 'Emails', icon: <EmailIcon />, href: '/emails' },
   { text: 'Notes', icon: <ListAltIcon />, href: '/notes' },
-  { text: 'Data Search', icon: <PeopleIcon />, href: '/datasearch' },
 ];
 
 const supportItems = [
