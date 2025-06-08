@@ -375,31 +375,36 @@ class ContactManager:
         # Redesigned layout: 3 columns, more balanced
         labels = [
             ("Name", 0, 0), ("Email", 0, 1), ("Phone", 0, 2),
-            ("Company", 1, 0), ("Tags", 1, 1)
+            ("Company", 1, 0), ("Tags", 1, 1), ("Birthday", 1, 2)
         ]
         for label, row, col in labels:
             ttk.Label(entry_frame, text=f"{label}:").grid(row=row, column=col*2, sticky=tk.W, padx=5, pady=2)
-            entry = ttk.Entry(entry_frame)
-            entry.grid(row=row, column=col*2+1, sticky=tk.W+tk.E, padx=5, pady=2)
+            if label == "Birthday":
+                entry = ttk.Entry(entry_frame)
+                entry.grid(row=row, column=col*2+1, sticky=tk.W+tk.E, padx=5, pady=2)
+                ttk.Label(entry_frame, text="(YYYY-MM-DD)").grid(row=row, column=col*2+2, sticky=tk.W, padx=5, pady=2)
+            else:
+                entry = ttk.Entry(entry_frame)
+                entry.grid(row=row, column=col*2+1, sticky=tk.W+tk.E, padx=5, pady=2)
             self.entries[label] = entry
         # Job Title
         ttk.Label(entry_frame, text="Job Title:").grid(row=2, column=0, sticky=tk.W, padx=5, pady=2)
         self.job_title_var = tk.StringVar()
         self.job_title_dropdown = ttk.Combobox(entry_frame, textvariable=self.job_title_var, values=self.JOB_TITLE_OPTIONS)
         self.job_title_dropdown.grid(row=2, column=1, sticky=tk.W+tk.E, padx=5, pady=2)
-        self.job_title_dropdown.bind('<KeyRelease>', lambda e: self._autocomplete(self.job_title_dropdown, self.JOB_TITLE_OPTIONS))
+        self.job_title_dropdown.bind('<KeyRelease>', lambda e: self._improved_autocomplete(self.job_title_dropdown, self.JOB_TITLE_OPTIONS))
         # Career
         ttk.Label(entry_frame, text="Career:").grid(row=2, column=2, sticky=tk.W, padx=5, pady=2)
         self.career_var = tk.StringVar()
         self.career_dropdown = ttk.Combobox(entry_frame, textvariable=self.career_var, values=self.CAREER_OPTIONS)
         self.career_dropdown.grid(row=2, column=3, sticky=tk.W+tk.E, padx=5, pady=2)
-        self.career_dropdown.bind('<KeyRelease>', lambda e: self._autocomplete(self.career_dropdown, self.CAREER_OPTIONS))
+        self.career_dropdown.bind('<KeyRelease>', lambda e: self._improved_autocomplete(self.career_dropdown, self.CAREER_OPTIONS))
         # Relationship Type
         ttk.Label(entry_frame, text="Relationship:").grid(row=3, column=0, sticky=tk.W, padx=5, pady=2)
         self.relationship_var = tk.StringVar()
         self.relationship_dropdown = ttk.Combobox(entry_frame, textvariable=self.relationship_var, values=self.RELATIONSHIP_TYPE_OPTIONS)
         self.relationship_dropdown.grid(row=3, column=1, sticky=tk.W+tk.E, padx=5, pady=2)
-        self.relationship_dropdown.bind('<KeyRelease>', lambda e: self._autocomplete(self.relationship_dropdown, self.RELATIONSHIP_TYPE_OPTIONS))
+        self.relationship_dropdown.bind('<KeyRelease>', lambda e: self._improved_autocomplete(self.relationship_dropdown, self.RELATIONSHIP_TYPE_OPTIONS))
         # Relationship Level
         ttk.Label(entry_frame, text="Relationship Level:").grid(row=3, column=2, sticky=tk.W, padx=5, pady=2)
         self.relationship_level_var = tk.IntVar(value=3)
@@ -410,13 +415,13 @@ class ContactManager:
         self.state_var = tk.StringVar()
         self.state_dropdown = ttk.Combobox(entry_frame, textvariable=self.state_var, values=self.US_STATES)
         self.state_dropdown.grid(row=4, column=1, sticky=tk.W+tk.E, padx=5, pady=2)
-        self.state_dropdown.bind('<KeyRelease>', lambda e: self._autocomplete(self.state_dropdown, self.US_STATES))
+        self.state_dropdown.bind('<KeyRelease>', lambda e: self._improved_autocomplete(self.state_dropdown, self.US_STATES))
         # City
         ttk.Label(entry_frame, text="City:").grid(row=4, column=2, sticky=tk.W, padx=5, pady=2)
         self.city_var = tk.StringVar()
         self.city_dropdown = ttk.Combobox(entry_frame, textvariable=self.city_var, values=self.CITY_OPTIONS)
         self.city_dropdown.grid(row=4, column=3, sticky=tk.W+tk.E, padx=5, pady=2)
-        self.city_dropdown.bind('<KeyRelease>', lambda e: self._autocomplete(self.city_dropdown, self.CITY_OPTIONS))
+        self.city_dropdown.bind('<KeyRelease>', lambda e: self._improved_autocomplete(self.city_dropdown, self.CITY_OPTIONS))
         # Last Contact
         ttk.Label(entry_frame, text="Last Contact:").grid(row=5, column=0, sticky=tk.W, padx=5, pady=2)
         self.last_contact_var = tk.StringVar(value=datetime.now().strftime("%Y-%m-%d"))
@@ -445,7 +450,7 @@ class ContactManager:
         # Table
         table_frame = ttk.Frame(self.contacts_frame)
         table_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
-        columns = ("Name", "Email", "Phone", "Company", "Job Title", "Career", "Relationship", "Relationship Level", "State", "City", "Last Contact", "Tags", "Notes")
+        columns = ("Name", "Email", "Phone", "Company", "Job Title", "Career", "Relationship", "Relationship Level", "State", "City", "Birthday", "Last Contact", "Tags", "Notes")
         self.contacts_tree = ttk.Treeview(table_frame, columns=columns, show="headings", height=10)
         for col in columns:
             self.contacts_tree.heading(col, text=col)
@@ -456,6 +461,24 @@ class ContactManager:
         self.contacts_tree.pack(fill=tk.BOTH, expand=True, side=tk.TOP)
         xscroll.pack(fill=tk.X, side=tk.BOTTOM)
         self.contacts_tree.bind("<<TreeviewSelect>>", self.on_contact_select)
+
+    def _improved_autocomplete(self, combobox, options):
+        value = combobox.get().lower()
+        if not value:
+            combobox['values'] = options
+            return
+        
+        # Sort matches by relevance (exact matches first, then contains matches)
+        exact_matches = [item for item in options if item.lower() == value]
+        contains_matches = [item for item in options if value in item.lower() and item not in exact_matches]
+        filtered = exact_matches + contains_matches
+        
+        if filtered:
+            combobox['values'] = filtered
+            # Show dropdown list
+            combobox.event_generate('<Down>')
+        else:
+            combobox['values'] = options
 
     def get_contact_form_data(self):
         data = {k.lower(): self.entries[k].get().strip() for k in self.entries}
@@ -486,6 +509,13 @@ class ContactManager:
         self.last_contact_var.set(contact.get("last_contact", datetime.now().strftime("%Y-%m-%d")))
         self.notes_text.delete("1.0", tk.END)
         self.notes_text.insert(tk.END, contact.get("notes", ""))
+        
+        # Update dropdown values to ensure they're visible
+        self.job_title_dropdown['values'] = self.JOB_TITLE_OPTIONS
+        self.career_dropdown['values'] = self.CAREER_OPTIONS
+        self.relationship_dropdown['values'] = self.RELATIONSHIP_TYPE_OPTIONS
+        self.state_dropdown['values'] = self.US_STATES
+        self.city_dropdown['values'] = self.CITY_OPTIONS
 
     def clear_contact_form(self):
         for entry in self.entries.values():
@@ -502,6 +532,13 @@ class ContactManager:
         self.last_contact_var.set(datetime.now().strftime("%Y-%m-%d"))
         self.notes_text.delete("1.0", tk.END)
         self.selected_contact_index = None
+        
+        # Reset dropdown values
+        self.job_title_dropdown['values'] = self.JOB_TITLE_OPTIONS
+        self.career_dropdown['values'] = self.CAREER_OPTIONS
+        self.relationship_dropdown['values'] = self.RELATIONSHIP_TYPE_OPTIONS
+        self.state_dropdown['values'] = self.US_STATES
+        self.city_dropdown['values'] = self.CITY_OPTIONS
 
     def refresh_contacts(self):
         for item in self.contacts_tree.get_children():
@@ -518,6 +555,7 @@ class ContactManager:
                 contact.get("relationship_level", ""),
                 contact.get("state", ""),
                 contact.get("city", ""),
+                contact.get("birthday", ""),
                 contact.get("last_contact", ""),
                 contact.get("tags", ""),
                 contact.get("notes", "")
@@ -790,7 +828,7 @@ class ContactManager:
                 company_name = (company.get("name") or "").strip().lower()
                 company_location = (company.get("location") or "").strip().lower()
                 if contact_company == company_name and contact_location == company_location:
-                    if contact.get("relationship_type") and "lead" in contact.get("relationship_type").lower():
+                    if contact.get("relationship_type") and "lead" in contact.get("relationship_type", "").lower():
                         leads += 1
                     elif contact.get("relationship_type") == "Professional Relationship":
                         professionals += 1
@@ -849,11 +887,6 @@ class ContactManager:
             self.refresh_companies()
             self.clear_company_form()
             messagebox.showinfo("Success", "Company deleted successfully!")
-
-    def _autocomplete(self, combobox, options):
-        value = combobox.get()
-        filtered = [item for item in options if value.lower() in item.lower()]
-        combobox['values'] = filtered if filtered else options
 
     def _handle_enter_key(self, event):
         widget = self.root.focus_get()

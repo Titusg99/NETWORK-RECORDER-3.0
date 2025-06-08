@@ -79,6 +79,53 @@
       "city": "",
       "last_contact": "2025-06-08",
       "notes": ""
+    },
+    {
+      "name": "Tim garbla",
+      "email": "tgarbal@gmail.com",
+      "phone": "",
+      "company": "",
+      "tags": "",
+      "job_title": "",
+      "career": "",
+      "relationship_type": "",
+      "relationship_level": 3,
+      "state": "",
+      "city": "",
+      "last_contact": "2025-06-08",
+      "notes": "weqr this is going to be the dummy data that tests the update"
+    },
+    {
+      "name": "asdl;sdf",
+      "email": "",
+      "phone": "jkhlglk",
+      "company": "lkjkj",
+      "tags": "hlkjh",
+      "birthday": "",
+      "job_title": "lkjh",
+      "career": "lkjh",
+      "relationship_type": "Lead - First Follow-up",
+      "relationship_level": 1,
+      "state": "Kentucky",
+      "city": "Phoenix",
+      "last_contact": "2025-06-08",
+      "notes": "jyhkjhgjhgmjkhgjkhgkgjhgkjhgjkhgjkhgjhgkjhgjkhgjkhgjkhgkjhgkjhjhg"
+    },
+    {
+      "name": "smadksfslajh",
+      "email": "kjh",
+      "phone": "lk",
+      "company": "jhlk",
+      "tags": "jh",
+      "birthday": "lkjh",
+      "job_title": "lkjh",
+      "career": "lkjh",
+      "relationship_type": "lkjh",
+      "relationship_level": 3,
+      "state": "lkjh",
+      "city": "jhlk",
+      "last_contact": "",
+      "notes": ""
     }
   ],
   "companies": [
@@ -103,6 +150,33 @@
     {
       "name": "Grayhawk capital",
       "location": "Phoenix",
+      "stage": "",
+      "type": "",
+      "sector": "",
+      "website": "",
+      "description": ""
+    },
+    {
+      "name": "notradl.com",
+      "location": "Portland",
+      "stage": "",
+      "type": "",
+      "sector": "",
+      "website": "",
+      "description": ""
+    },
+    {
+      "name": "lkjkj",
+      "location": "Phoenix",
+      "stage": "",
+      "type": "",
+      "sector": "",
+      "website": "",
+      "description": ""
+    },
+    {
+      "name": "jhlk",
+      "location": "jhlk",
       "stage": "",
       "type": "",
       "sector": "",
