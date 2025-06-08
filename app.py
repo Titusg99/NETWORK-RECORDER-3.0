@@ -16,7 +16,7 @@ class ContactManager:
         self.filtered_contacts = []
         self.selected_contact_index = None
         self.selected_company_index = None
-        self.current_page = "contacts"
+        self.current_page = "dashboard"
         
         # Define relationship types and their follow-up rules
         self.RELATIONSHIP_TYPES = {
@@ -77,15 +77,32 @@ class ContactManager:
         self.main_container = ttk.Frame(self.root)
         self.main_container.pack(fill=tk.BOTH, expand=True)
         
+        # Loading overlay
+        self.loading_overlay = tk.Frame(self.root, bg="white")
+        self.loading_label = tk.Label(self.loading_overlay, text="Loading...", font=("Helvetica", 18, "bold"), bg="white", fg="black")
+        self.loading_label.pack(expand=True)
+        self.loading_overlay.place_forget()
+        
         # Create navigation buttons
         nav_frame = ttk.Frame(self.main_container)
         nav_frame.pack(fill=tk.X, padx=10, pady=5)
-        ttk.Button(nav_frame, text="Contacts", command=lambda: self.show_page("contacts")).pack(side=tk.LEFT, padx=5)
-        ttk.Button(nav_frame, text="Companies", command=lambda: self.show_page("companies")).pack(side=tk.LEFT, padx=5)
-        ttk.Button(nav_frame, text="Tasks", command=lambda: self.show_page("tasks")).pack(side=tk.LEFT, padx=5)
-        ttk.Button(nav_frame, text="Analytics", command=lambda: self.show_page("analytics")).pack(side=tk.LEFT, padx=5)
+        self.nav_buttons = {}
+        style = ttk.Style()
+        style.configure("ActiveNav.TButton", font=("Helvetica", 10, "bold"), relief="solid", borderwidth=2)
+        style.configure("InactiveNav.TButton", font=("Helvetica", 10, "normal"), relief="flat", borderwidth=1)
+        self.nav_buttons["dashboard"] = ttk.Button(nav_frame, text="Analytics Dashboard", command=lambda: self.show_page("dashboard"), style="ActiveNav.TButton")
+        self.nav_buttons["dashboard"].pack(side=tk.LEFT, padx=5)
+        self.nav_buttons["contacts"] = ttk.Button(nav_frame, text="Contacts", command=lambda: self.show_page("contacts"), style="InactiveNav.TButton")
+        self.nav_buttons["contacts"].pack(side=tk.LEFT, padx=5)
+        self.nav_buttons["companies"] = ttk.Button(nav_frame, text="Companies", command=lambda: self.show_page("companies"), style="InactiveNav.TButton")
+        self.nav_buttons["companies"].pack(side=tk.LEFT, padx=5)
+        self.nav_buttons["tasks"] = ttk.Button(nav_frame, text="Tasks", command=lambda: self.show_page("tasks"), style="InactiveNav.TButton")
+        self.nav_buttons["tasks"].pack(side=tk.LEFT, padx=5)
+        self.nav_buttons["analytics"] = ttk.Button(nav_frame, text="Data Search", command=lambda: self.show_page("analytics"), style="InactiveNav.TButton")
+        self.nav_buttons["analytics"].pack(side=tk.LEFT, padx=5)
         
         # Create pages
+        self.setup_dashboard_ui()
         self.setup_contacts_ui()
         self.setup_companies_ui()
         self.setup_tasks_ui()
@@ -93,10 +110,61 @@ class ContactManager:
         self.setup_analytics_ui()
         
         # Show initial page
-        self.show_page("contacts")
+        self.show_page("dashboard")
         
         # Fix treeview style after all frames are created
         self.fix_treeview_style()
+
+    def setup_dashboard_ui(self):
+        self.dashboard_frame = ttk.Frame(self.root)
+        header = ttk.Label(self.dashboard_frame, text="Analytics Dashboard", font=("Helvetica", 18, "bold"))
+        header.pack(pady=20)
+        # Placeholder for dashboard content
+        summary_label = ttk.Label(self.dashboard_frame, text="Welcome to your Analytics Dashboard!", font=("Helvetica", 12))
+        summary_label.pack(pady=10)
+
+    def show_loading(self):
+        self.loading_overlay.place(relx=0, rely=0, relwidth=1, relheight=1)
+        self.loading_overlay.lift()
+        self.root.update_idletasks()
+
+    def hide_loading(self):
+        self.loading_overlay.place_forget()
+        self.root.update_idletasks()
+
+    def show_page(self, page_name):
+        self.show_loading()
+        self.root.after(100, lambda: self._show_page(page_name))
+
+    def _show_page(self, page_name):
+        # Hide all pages
+        if hasattr(self, 'dashboard_frame'):
+            self.dashboard_frame.pack_forget()
+        self.contacts_frame.pack_forget()
+        self.companies_frame.pack_forget()
+        self.tasks_frame.pack_forget()
+        if hasattr(self, 'analytics_frame'):
+            self.analytics_frame.pack_forget()
+        # Update nav button styles
+        for key, btn in self.nav_buttons.items():
+            if key == page_name:
+                btn.config(style="ActiveNav.TButton")
+            else:
+                btn.config(style="InactiveNav.TButton")
+        if page_name == "dashboard":
+            self.dashboard_frame.pack(fill=tk.BOTH, expand=True)
+        elif page_name == "contacts":
+            self.contacts_frame.pack(fill=tk.BOTH, expand=True)
+        elif page_name == "companies":
+            self.companies_frame.pack(fill=tk.BOTH, expand=True)
+            self.refresh_companies()  # Always refresh companies when showing the page
+        elif page_name == "tasks":
+            self.tasks_frame.pack(fill=tk.BOTH, expand=True)
+            self.refresh_tasks()
+        elif page_name == "analytics":
+            self.analytics_frame.pack(fill=tk.BOTH, expand=True)
+        self.current_page = page_name
+        self.hide_loading()
 
     def setup_tasks_ui(self):
         self.tasks_frame = ttk.Frame(self.root)
@@ -296,25 +364,6 @@ class ContactManager:
         style.configure("TEntry", fieldbackground="#ffffff", foreground="#000000")
         style.configure("TCombobox", fieldbackground="#ffffff", foreground="#000000")
         style.configure("TButton", background="#e0e0e0", foreground="#000000")
-
-    def show_page(self, page_name):
-        # Hide all pages
-        self.contacts_frame.pack_forget()
-        self.companies_frame.pack_forget()
-        self.tasks_frame.pack_forget()
-        if hasattr(self, 'analytics_frame'):
-            self.analytics_frame.pack_forget()
-        if page_name == "contacts":
-            self.contacts_frame.pack(fill=tk.BOTH, expand=True)
-        elif page_name == "companies":
-            self.companies_frame.pack(fill=tk.BOTH, expand=True)
-            self.refresh_companies()  # Always refresh companies when showing the page
-        elif page_name == "tasks":
-            self.tasks_frame.pack(fill=tk.BOTH, expand=True)
-            self.refresh_tasks()
-        elif page_name == "analytics":
-            self.analytics_frame.pack(fill=tk.BOTH, expand=True)
-        self.current_page = page_name
 
     def setup_contacts_ui(self):
         self.contacts_frame = ttk.Frame(self.root)
