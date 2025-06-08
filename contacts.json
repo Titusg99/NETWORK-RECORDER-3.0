@@ -1,0 +1,113 @@
+{
+  "contacts": [
+    {
+      "name": "Carson Goodrich",
+      "email": "CGOventure@gmail.com",
+      "phone": "",
+      "company": "House Coffee Co",
+      "tags": "",
+      "notes": "burns coffee",
+      "job_title": "CEO",
+      "career": "Other",
+      "relationship_type": "Dead Lead",
+      "relationship_level": 5,
+      "state": "AZ",
+      "city": "Phoenix",
+      "last_contact": "2025-06-08",
+      "history": [
+        {
+          "date": "2025-06-08 00:05",
+          "type": "First Follow-up",
+          "stage": "First Follow-up",
+          "note": "Completed First Follow-up scheduled for 2025-06-14"
+        },
+        {
+          "date": "2025-06-08 00:06",
+          "type": "Second Follow-up",
+          "stage": "Second Follow-up",
+          "note": "Completed Second Follow-up scheduled for 2025-06-15"
+        },
+        {
+          "date": "2025-06-08 00:06",
+          "type": "Third Follow-up",
+          "stage": "Third Follow-up",
+          "note": "Completed Third Follow-up scheduled for 2025-06-15"
+        }
+      ]
+    },
+    {
+      "name": "Noah Muhiwa",
+      "email": "Nmuhirwa@gmail.com",
+      "phone": "",
+      "company": "Kimbo",
+      "tags": "",
+      "notes": "Awesome guy",
+      "job_title": "CTO",
+      "career": "Entrepreneur",
+      "relationship_type": "Professional Relationship",
+      "relationship_level": 5,
+      "state": "AZ",
+      "city": "Phoenix",
+      "last_contact": "2025-06-07"
+    },
+    {
+      "name": "Sherman Chu",
+      "email": "Schu@grayhawk.vc",
+      "phone": "",
+      "company": "Grayhawk capital",
+      "tags": "",
+      "notes": "Boss man",
+      "job_title": "CEO",
+      "career": "Venture Capital",
+      "relationship_type": "Professional Relationship",
+      "relationship_level": 3,
+      "state": "AZ",
+      "city": "Phoenix",
+      "last_contact": "2025-06-08"
+    },
+    {
+      "name": "Kyle Delashmutt",
+      "email": "",
+      "phone": "",
+      "company": "Grayhawk capital",
+      "tags": "",
+      "job_title": "Analyst",
+      "career": "Venture Capital",
+      "relationship_type": "Professional Relationship",
+      "relationship_level": 3,
+      "state": "Arizona",
+      "city": "",
+      "last_contact": "2025-06-08",
+      "notes": ""
+    }
+  ],
+  "companies": [
+    {
+      "name": "House Coffee Co",
+      "location": "Phoenix",
+      "stage": "",
+      "type": "",
+      "sector": "",
+      "website": "",
+      "description": ""
+    },
+    {
+      "name": "Kimbo",
+      "location": "Phoenix",
+      "stage": "Pre-Seed",
+      "type": "Startup",
+      "sector": "Education",
+      "website": "",
+      "description": ""
+    },
+    {
+      "name": "Grayhawk capital",
+      "location": "Phoenix",
+      "stage": "",
+      "type": "",
+      "sector": "",
+      "website": "",
+      "description": ""
+    }
+  ]
+}

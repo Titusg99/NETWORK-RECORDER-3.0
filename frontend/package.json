@@ -1,35 +1,22 @@
 {
   "name": "frontend",
-  "version": "0.1.0",
-  "private": true,
-  "main": "main.js",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "dev": "next dev -p 3001",
-    "build": "next build",
-    "start": "next start -p 3001",
-    "start:electron": "concurrently \"next dev -p 3001\" \"wait-on http://localhost:3001 && electron .\""
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.10.0",
   "dependencies": {
-    "@emotion/react": "^11.11.3",
-    "@emotion/styled": "^11.11.0",
-    "@mui/icons-material": "^5.15.10",
-    "@mui/material": "^5.15.10",
-    "@mui/material-nextjs": "^7.1.1",
-    "@mui/x-date-pickers": "^6.19.4",
-    "date-fns": "^2.30.0",
-    "next": "14.1.0",
-    "react": "^18.2.0",
-    "react-beautiful-dnd": "^13.1.1",
-    "react-dom": "^18.2.0",
-    "zustand": "^4.5.1"
-  },
-  "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "concurrently": "^8.2.2",
-    "electron": "^28.2.0",
-    "typescript": "^5",
-    "wait-on": "^7.2.0"
+    "concurrently": "^9.1.2",
+    "electron": "^36.4.0",
+    "electron-builder": "^26.0.12",
+    "next": "^15.3.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "wait-on": "^8.0.3"
   }
 }
