@@ -54,11 +54,12 @@ class ContactManager:
             "Technology", "Healthcare", "Finance", "Real Estate", "Consumer", "Energy", "Industrial", "Telecom", "Education", "Other"
         ]
         self.CITY_OPTIONS = [
-            "New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia", "San Antonio", "San Diego", "Dallas", "San Jose", "Austin", "Jacksonville", "Fort Worth", "Columbus", "Charlotte", "San Francisco", "Indianapolis", "Seattle", "Denver", "Washington", "Boston", "El Paso", "Nashville", "Detroit", "Oklahoma City", "Portland", "Las Vegas", "Memphis", "Louisville", "Baltimore", "Milwaukee", "Albuquerque", "Tucson", "Fresno", "Mesa", "Sacramento", "Atlanta", "Kansas City", "Colorado Springs", "Miami", "Raleigh", "Omaha", "Long Beach", "Virginia Beach", "Oakland", "Minneapolis", "Tulsa", "Arlington", "Tampa", "New Orleans", "Wichita", "Cleveland", "Bakersfield", "Aurora", "Anaheim", "Honolulu", "Santa Ana", "Riverside", "Corpus Christi", "Lexington", "Stockton", "Henderson", "Saint Paul", "St. Louis", "Cincinnati", "Pittsburgh", "Greensboro", "Anchorage", "Plano", "Lincoln", "Orlando", "Irvine", "Newark", "Toledo", "Durham", "Chula Vista", "Fort Wayne", "Jersey City", "St. Petersburg", "Laredo", "Madison", "Chandler", "Buffalo", "Lubbock", "Scottsdale", "Reno", "Glendale", "Gilbert", "Winston–Salem", "North Las Vegas", "Norfolk", "Chesapeake", "Garland", "Irving", "Hialeah", "Fremont", "Boise", "Richmond", "London", "Paris", "Berlin", "Tokyo", "Beijing", "Shanghai", "Hong Kong", "Singapore", "Sydney", "Melbourne", "Toronto", "Vancouver", "Montreal", "Mexico City", "Sao Paulo", "Buenos Aires", "Cape Town", "Johannesburg", "Dubai", "Istanbul", "Moscow", "Delhi", "Mumbai", "Bangalore", "Seoul", "Bangkok", "Kuala Lumpur", "Jakarta", "Manila", "Cairo", "Lagos", "Nairobi", "Dublin", "Madrid", "Rome", "Barcelona", "Amsterdam", "Brussels", "Vienna", "Zurich", "Geneva", "Stockholm", "Oslo", "Copenhagen", "Helsinki", "Warsaw", "Prague", "Budapest", "Athens", "Lisbon", "Bratislava", "Tallinn", "Riga", "Vilnius", "Reykjavik", "Edinburgh", "Glasgow", "Belfast", "Cardiff", "Liverpool", "Manchester", "Birmingham", "Leeds", "Sheffield", "Nottingham", "Leicester", "Bristol", "Southampton", "Portsmouth", "Plymouth", "Aberdeen", "Dundee", "Inverness", "Stirling", "Perth", "Derry", "Galway", "Limerick", "Cork", "Waterford", "Kilkenny", "Sligo", "Wexford", "Tralee", "Ennis", "Killarney", "Athlone", "Mullingar", "Navan", "Carlow", "Clonmel", "Letterkenny", "Tullamore", "Ballina", "Castlebar", "Armagh", "Lisburn", "Newry", "Bangor", "Craigavon", "Newtownabbey", "Carrickfergus", "Larne", "Ballymena", "Coleraine", "Antrim", "Ballymoney", "Magherafelt", "Cookstown", "Omagh", "Strabane", "Dungannon", "Downpatrick", "Banbridge", "Warrenpoint", "Holywood", "Donaghadee", "Portadown", "Lurgan", "Moira", "Rostrevor", "Kilkeel", "Ballycastle", "Portrush", "Portstewart", "Bushmills", "Ballynahinch", "Comber", "Saintfield", "Ballyclare", "Ballygowan", "Ballywalter", "Ballyhalbert", "Ballyhornan", "Ballygalley", "Ballycarry", "Ballyeaston", "Ballynure", "Ballyrobert", "Ballymena", "Ballymoney", "Ballycastle", "Ballynahinch", "Ballyclare", "Ballygowan", "Ballywalter", "Ballyhalbert", "Ballyhornan", "Ballygalley", "Ballycarry", "Ballyeaston", "Ballynure", "Ballyrobert"
+            "New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia", "San Antonio", "San Diego", "Dallas", "San Jose", "Austin", "Jacksonville", "Fort Worth", "Columbus", "Charlotte", "San Francisco", "Indianapolis", "Seattle", "Denver", "Washington", "Boston", "El Paso", "Nashville", "Detroit", "Oklahoma City", "Portland", "Las Vegas", "Memphis", "Louisville", "Baltimore", "Milwaukee", "Albuquerque", "Tucson", "Fresno", "Mesa", "Sacramento", "Atlanta", "Kansas City", "Colorado Springs", "Miami", "Raleigh", "Omaha", "Long Beach", "Virginia Beach", "Oakland", "Minneapolis", "Tulsa", "Arlington", "Tampa", "New Orleans", "Wichita", "Cleveland", "Bakersfield", "Aurora", "Anaheim", "Honolulu", "Santa Ana", "Riverside", "Corpus Christi", "Lexington", "Stockton", "Henderson", "Saint Paul", "St. Louis", "Cincinnati", "Pittsburgh", "Greensboro", "Anchorage", "Plano", "Lincoln", "Orlando", "Irvine", "Newark", "Toledo", "Durham", "Chula Vista", "Fort Wayne", "Jersey City", "St. Petersburg", "Laredo", "Madison", "Chandler", "Buffalo", "Lubbock", "Scottsdale", "Reno", "Glendale", "Gilbert", "Winston–Salem", "North Las Vegas", "Norfolk", "Chesapeake", "Garland", "Irving", "Hialeah", "Fremont", "Boise", "Richmond"
         ]
         
         # Define relationship options
         self.RELATIONSHIP_TYPE_OPTIONS = [
+            "Lead",
             "Passive Friendship",
             "Lead - First Outreach",
             "Lead - First Follow-up",
@@ -213,51 +214,47 @@ class ContactManager:
         item = self.tasks_tree.item(selection[0])
         contact_name = item['values'][0]
         task_type = item['values'][1]
-        due_date = item['values'][2]
         # Find the contact
-        contact = None
-        for c in self.contacts:
-            if c.get("name") == contact_name:
-                contact = c
+        for contact in self.contacts:
+            if contact.get("name") == contact_name:
                 break
-        if not contact:
+        else:
             return
-        # Log the interaction
-        if "history" not in contact:
-            contact["history"] = []
-        contact["history"].append({
-            "date": datetime.now().strftime("%Y-%m-%d %H:%M"),
-            "type": task_type,
-            "stage": task_type,
-            "note": f"Completed {task_type} scheduled for {due_date}"
-        })
-        contact["last_contact"] = datetime.now().strftime("%Y-%m-%d")
         # Lead follow-up workflow
-        if contact.get("relationship_type") == "Lead":
+        if contact.get("relationship_type", "").startswith("Lead"):
             stages = list(self.RELATIONSHIP_TYPES["Lead"]["stages"].keys())
-            current_stage = contact.get("lead_stage", stages[1])  # Default to First Follow-up
-            if task_type in stages:
-                idx = stages.index(task_type)
-                # Show dialog to ask about response
-                response = messagebox.askyesnocancel(
-                    "Follow-up Response",
-                    f"Did you get a response from {contact_name}?",
-                    icon='question'
-                )
-                if response is None:
-                    return
-                elif response:
-                    contact["relationship_type"] = "Professional Relationship"
-                    contact.pop("lead_stage", None)
-                    messagebox.showinfo("Status Updated", f"{contact_name} has been converted to a Professional Relationship.")
+            # Determine the current stage from the relationship_type
+            for stage in stages:
+                if stage in contact.get("relationship_type", ""):
+                    current_stage = stage
+                    break
+            else:
+                current_stage = stages[0]
+            idx = stages.index(current_stage)
+            response = messagebox.askyesnocancel(
+                "Follow-up Response",
+                f"Did you get a response from {contact_name}?",
+                icon='question'
+            )
+            if response is None:
+                return
+            elif response:
+                contact["relationship_type"] = "Professional Relationship"
+                contact.pop("lead_stage", None)
+                contact["last_contact"] = datetime.now().strftime("%Y-%m-%d")
+                messagebox.showinfo("Status Updated", f"{contact_name} has been converted to a Professional Relationship.")
+            else:
+                if idx + 1 < len(stages):
+                    next_stage = stages[idx + 1]
+                    contact["relationship_type"] = f"Lead - {next_stage}"
+                    contact["lead_stage"] = next_stage
+                    contact["last_contact"] = datetime.now().strftime("%Y-%m-%d")
+                    messagebox.showinfo("Status Updated", f"{contact_name} will be moved to {next_stage}.")
                 else:
-                    if idx + 1 < len(stages):
-                        contact["lead_stage"] = stages[idx + 1]
-                        messagebox.showinfo("Status Updated", f"{contact_name} will be moved to {stages[idx + 1]}.")
-                    else:
-                        contact["relationship_type"] = "Dead Lead"
-                        contact.pop("lead_stage", None)
-                        messagebox.showinfo("Status Updated", f"{contact_name} has been marked as a Dead Lead after no response.")
+                    contact["relationship_type"] = "Dead Lead"
+                    contact.pop("lead_stage", None)
+                    contact["last_contact"] = datetime.now().strftime("%Y-%m-%d")
+                    messagebox.showinfo("Status Updated", f"{contact_name} has been marked as a Dead Lead after no response.")
         self.save_data()
         self.refresh_tasks()
         self.refresh_contacts()
@@ -284,37 +281,28 @@ class ContactManager:
                 continue
             history = contact.get("history", [])
             done_stages = [h.get("stage") for h in history]
-            if relationship_type == "Lead":
+            # Treat any relationship_type that starts with 'Lead' as a lead
+            if relationship_type.startswith("Lead"):
                 stages = list(self.RELATIONSHIP_TYPES["Lead"]["stages"].keys())
-                lead_stage = contact.get("lead_stage", stages[1])  # Default to First Follow-up
-                if lead_stage in stages:
-                    i = stages.index(lead_stage)
-                    stage = lead_stage
-                    # Find the date of the previous follow-up (or last_contact for first follow-up)
-                    if i == 1:
-                        prev_date = last_contact_date
-                    else:
-                        # Find the most recent completion date for the previous stage
-                        prev_stage = stages[i-1]
-                        prev_date = last_contact_date
-                        for h in reversed(history):
-                            if h.get("stage") == prev_stage:
-                                try:
-                                    prev_date = datetime.strptime(h["date"][:10], "%Y-%m-%d")
-                                except Exception:
-                                    pass
-                                break
-                    due_date = prev_date + timedelta(days=self.RELATIONSHIP_TYPES["Lead"]["stages"][stage])
-                    days_left = (due_date - datetime.now()).days
-                    if due_date < datetime.now():
-                        status = "Overdue"
-                    elif days_left <= 2:
-                        status = "Upcoming"
-                    else:
-                        status = "Done"
-                    tasks.append((status, days_left, contact["name"], stage, due_date.strftime("%Y-%m-%d"), status, f"{stage} for {contact['name']}"))
-                    if status == "Overdue":
-                        overdue_count += 1
+                # Determine the current stage from the relationship_type
+                for stage in stages:
+                    if stage in relationship_type:
+                        current_stage = stage
+                        break
+                else:
+                    current_stage = stages[0]  # Default to First Outreach
+                # Due date is always 7 days after last_contact for the current stage
+                due_date = last_contact_date + timedelta(days=7)
+                days_left = (due_date - datetime.now()).days
+                if due_date < datetime.now():
+                    status = "Overdue"
+                elif days_left <= 2:
+                    status = "Upcoming"
+                else:
+                    status = "Done"
+                tasks.append((status, days_left, contact["name"], current_stage, due_date.strftime("%Y-%m-%d"), status, f"{current_stage} for {contact['name']}"))
+                if status == "Overdue":
+                    overdue_count += 1
             elif relationship_type == "Professional Relationship":
                 maintenance_interval = self.RELATIONSHIP_TYPES["Professional Relationship"]["maintenance"]
                 next_maintenance = last_contact_date
@@ -385,9 +373,9 @@ class ContactManager:
                 ttk.Label(entry_frame, text="(YYYY-MM-DD)").grid(row=row, column=col*2+2, sticky=tk.W, padx=5, pady=2)
             elif label == "Company":
                 self.company_var = tk.StringVar()
-                self.company_dropdown = ttk.Combobox(entry_frame, textvariable=self.company_var, values=self.get_company_names())
-                self.company_dropdown.grid(row=row, column=col*2+1, sticky=tk.W+tk.E, padx=5, pady=2)
-                self.company_dropdown.bind('<KeyRelease>', lambda e: self._improved_autocomplete(self.company_dropdown, self.get_company_names()))
+                self.company_dropdown = ttk.Combobox(entry_frame, textvariable=self.company_var)
+                self.company_dropdown.grid(row=row, column=col*2+1, sticky="ew", padx=5, pady=2)
+                self.company_dropdown.bind('<KeyRelease>', lambda e: self._improved_autocomplete(e, self.company_dropdown, self.get_company_names()))
                 entry = self.company_dropdown
             else:
                 entry = ttk.Entry(entry_frame)
@@ -398,20 +386,21 @@ class ContactManager:
         self.job_title_var = tk.StringVar()
         self.job_title_dropdown = ttk.Combobox(entry_frame, textvariable=self.job_title_var, values=self.JOB_TITLE_OPTIONS)
         self.job_title_dropdown.grid(row=2, column=1, sticky=tk.W+tk.E, padx=5, pady=2)
-        self.job_title_dropdown.bind('<KeyRelease>', lambda e: self._improved_autocomplete(self.job_title_dropdown, self.JOB_TITLE_OPTIONS))
+        self.job_title_dropdown.bind('<KeyRelease>', lambda e: self._improved_autocomplete(e, self.job_title_dropdown, self.JOB_TITLE_OPTIONS))
         # Career
         ttk.Label(entry_frame, text="Career:").grid(row=2, column=2, sticky=tk.W, padx=5, pady=2)
         self.career_var = tk.StringVar()
         self.career_dropdown = ttk.Combobox(entry_frame, textvariable=self.career_var, values=self.CAREER_OPTIONS)
         self.career_dropdown.grid(row=2, column=3, sticky=tk.W+tk.E, padx=5, pady=2)
-        self.career_dropdown.bind('<KeyRelease>', lambda e: self._improved_autocomplete(self.career_dropdown, self.CAREER_OPTIONS))
+        self.career_dropdown.bind('<KeyRelease>', lambda e: self._improved_autocomplete(e, self.career_dropdown, self.CAREER_OPTIONS))
         # Relationship Type
         ttk.Label(entry_frame, text="Relationship:").grid(row=3, column=0, sticky=tk.W, padx=5, pady=2)
         self.relationship_var = tk.StringVar()
         self.relationship_dropdown = ttk.Combobox(entry_frame, textvariable=self.relationship_var, values=self.RELATIONSHIP_TYPE_OPTIONS)
-        self.relationship_dropdown.grid(row=3, column=1, sticky=tk.W+tk.E, padx=5, pady=2)
-        self.relationship_dropdown.bind('<KeyRelease>', lambda e: self._improved_autocomplete(self.relationship_dropdown, self.RELATIONSHIP_TYPE_OPTIONS))
-        self.relationship_dropdown.bind('<<ComboboxSelected>>', self._suggest_relationship_level)
+        self.relationship_dropdown.grid(row=3, column=1, sticky="ew", padx=5, pady=2)
+        self.relationship_dropdown['values'] = self.RELATIONSHIP_TYPE_OPTIONS
+        self.relationship_dropdown.bind('<KeyRelease>', lambda e: self._improved_autocomplete(e, self.relationship_dropdown, self.RELATIONSHIP_TYPE_OPTIONS))
+        self.relationship_dropdown.bind('<<ComboboxSelected>>', self._on_relationship_change)
         # Relationship Level
         ttk.Label(entry_frame, text="Relationship Level:").grid(row=3, column=2, sticky=tk.W, padx=5, pady=2)
         self.relationship_level_var = tk.IntVar(value=3)
@@ -422,13 +411,13 @@ class ContactManager:
         self.state_var = tk.StringVar()
         self.state_dropdown = ttk.Combobox(entry_frame, textvariable=self.state_var, values=self.US_STATES)
         self.state_dropdown.grid(row=4, column=1, sticky=tk.W+tk.E, padx=5, pady=2)
-        self.state_dropdown.bind('<KeyRelease>', lambda e: self._improved_autocomplete(self.state_dropdown, self.US_STATES))
+        self.state_dropdown.bind('<KeyRelease>', lambda e: self._improved_autocomplete(e, self.state_dropdown, self.US_STATES))
         # City
         ttk.Label(entry_frame, text="City:").grid(row=4, column=2, sticky=tk.W, padx=5, pady=2)
         self.city_var = tk.StringVar()
-        self.city_dropdown = ttk.Combobox(entry_frame, textvariable=self.city_var, values=self.LARGE_CITY_OPTIONS)
-        self.city_dropdown.grid(row=4, column=3, sticky=tk.W+tk.E, padx=5, pady=2)
-        self.city_dropdown.bind('<KeyRelease>', lambda e: self._improved_autocomplete(self.city_dropdown, self.LARGE_CITY_OPTIONS))
+        self.city_dropdown = ttk.Combobox(entry_frame, textvariable=self.city_var)
+        self.city_dropdown.grid(row=4, column=3, sticky="ew", padx=5, pady=2)
+        self.city_dropdown.bind('<KeyRelease>', lambda e: self._improved_autocomplete(e, self.city_dropdown, self.CITY_OPTIONS))
         # Last Contact
         ttk.Label(entry_frame, text="Last Contact:").grid(row=5, column=0, sticky=tk.W, padx=5, pady=2)
         self.last_contact_var = tk.StringVar(value=datetime.now().strftime("%Y-%m-%d"))
@@ -472,21 +461,29 @@ class ContactManager:
     def get_company_names(self):
         return sorted(list(set([c.get("name", "") for c in self.companies if c.get("name")])) or [])
 
-    # Large US city list for city dropdown, plus a few major international cities
-    LARGE_CITY_OPTIONS = [
-        "New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia", "San Antonio", "San Diego", "Dallas", "San Jose", "Austin", "Jacksonville", "Fort Worth", "Columbus", "Charlotte", "San Francisco", "Indianapolis", "Seattle", "Denver", "Washington", "Boston", "El Paso", "Nashville", "Detroit", "Oklahoma City", "Portland", "Las Vegas", "Memphis", "Louisville", "Baltimore", "Milwaukee", "Albuquerque", "Tucson", "Fresno", "Mesa", "Sacramento", "Atlanta", "Kansas City", "Colorado Springs", "Miami", "Raleigh", "Omaha", "Long Beach", "Virginia Beach", "Oakland", "Minneapolis", "Tulsa", "Arlington", "Tampa", "New Orleans", "Wichita", "Cleveland", "Bakersfield", "Aurora", "Anaheim", "Honolulu", "Santa Ana", "Riverside", "Corpus Christi", "Lexington", "Stockton", "Henderson", "Saint Paul", "St. Louis", "Cincinnati", "Pittsburgh", "Greensboro", "Anchorage", "Plano", "Lincoln", "Orlando", "Irvine", "Newark", "Toledo", "Durham", "Chula Vista", "Fort Wayne", "Jersey City", "St. Petersburg", "Laredo", "Madison", "Chandler", "Buffalo", "Lubbock", "Scottsdale", "Reno", "Glendale", "Gilbert", "Winston–Salem", "North Las Vegas", "Norfolk", "Chesapeake", "Garland", "Irving", "Hialeah", "Fremont", "Boise", "Richmond", "Spokane", "Baton Rouge", "Des Moines", "Tacoma", "San Bernardino", "Modesto", "Fontana", "Santa Clarita", "Birmingham", "Oxnard", "Fayetteville", "Moreno Valley", "Rochester", "Glendale (AZ)", "Huntington Beach", "Salt Lake City", "Grand Rapids", "Amarillo", "Yonkers", "Aurora (IL)", "Montgomery", "Akron", "Little Rock", "Huntsville", "Augusta", "Port St. Lucie", "Grand Prairie", "Columbus (GA)", "Tallahassee", "Overland Park", "Tempe", "McKinney", "Mobile", "Cape Coral", "Shreveport", "Frisco", "Knoxville", "Worcester", "Brownsville", "Vancouver (WA)", "Fort Lauderdale", "Sioux Falls", "Ontario (CA)", "Chattanooga", "Providence", "Newport News", "Rancho Cucamonga", "Santa Rosa", "Oceanside", "Salem", "Elk Grove", "Garden Grove", "Pembroke Pines", "Eugene", "Peoria (AZ)", "Corona", "Cary", "Springfield (MO)", "Fort Collins", "Jackson", "Alexandria (VA)", "Hayward", "Lancaster (CA)", "Lakewood (CO)", "Clarksville (TN)", "Palmdale", "Salinas", "Springfield (MA)", "Hollywood (FL)", "Pasadena (TX)", "Sunnyvale", "Macon", "Kansas City (KS)", "Pomona", "Escondido", "Killeen", "Naperville", "Joliet", "Bellevue (WA)", "Rockford", "Savannah", "Paterson", "Torrance", "Bridgeport", "McAllen", "Mesquite", "Syracuse", "Midland", "Pasadena (CA)", "Murfreesboro", "Miramar", "Dayton", "Fullerton", "Olathe", "Orange (CA)", "Thornton", "Roseville (CA)", "Denton", "Waco", "Surprise", "Carrollton", "West Valley City", "Charleston (SC)", "Warren (MI)", "Hampton", "Gainesville", "Visalia", "Coral Springs", "Columbia (SC)", "Cedar Rapids", "Sterling Heights", "New Haven", "Stamford", "Concord (CA)", "Kent (WA)", "Santa Clara", "Elizabeth", "Round Rock", "Thousand Oaks", "Lafayette (LA)", "Topeka", "Athens (GA)", "Simi Valley", "Fargo", "Norman", "Columbia (MO)", "Abilene", "Wilmington (NC)", "Hartford", "Victorville", "Pearland", "Vallejo", "Ann Arbor", "Berkeley", "Allentown", "Richardson", "Odessa", "Arvada", "Cambridge (MA)", "Sugar Land", "Beaumont", "Lansing", "Evansville", "Rochester (MN)", "Independence (MO)", "Fairfield (CA)", "Provo", "Clearwater", "College Station", "West Jordan", "Carlsbad (CA)", "El Monte", "Murrieta", "Temecula", "Springfield (IL)", "Palm Bay", "Costa Mesa", "Westminster (CA)", "North Charleston", "Miami Gardens", "Manchester (NH)", "High Point", "Downey", "Clovis (CA)", "Pompano Beach", "Pueblo", "Elgin", "Lowell", "Antioch (CA)", "West Palm Beach", "Peoria (IL)", "Everett", "Wichita Falls", "Gresham", "Billings", "Inglewood", "Sparks", "San Buenaventura (Ventura)", "Jurupa Valley", "South Bend", "Renton", "Vista", "Davie", "Tuscaloosa", "Carmel (IN)", "Allen", "Yuma", "Brockton", "Compton", "Clifton", "Citrus Heights", "Livonia", "Tracy", "Alhambra",
-        # Major international cities (Canada, Mexico, UK, Israel, etc)
-        "Toronto", "Vancouver", "Montreal", "Mexico City", "Guadalajara", "Monterrey", "London", "Manchester (UK)", "Birmingham (UK)", "Jerusalem", "Tel Aviv", "Haifa"
-    ]
+    def _improved_autocomplete(self, event, combobox, options):
+        value = combobox.get().lower()
+        if not value:
+            combobox['values'] = options
+            return
+        exact_matches = [opt for opt in options if opt.lower() == value]
+        if exact_matches:
+            combobox['values'] = exact_matches
+            return
+        matches = [opt for opt in options if value in opt.lower()]
+        if matches:
+            combobox['values'] = matches
+        else:
+            combobox['values'] = options
 
-    def _suggest_relationship_level(self, event=None):
-        rel = self.relationship_var.get().lower()
-        if "lead" in rel:
-            self.relationship_level_var.set(0)
-        elif rel == "professional relationship":
-            self.relationship_level_var.set(3)
-        elif rel == "passive friendship":
-            self.relationship_level_var.set(5)
+    def _on_relationship_change(self, event=None):
+        relationship = self.relationship_var.get()
+        if relationship == "Lead":
+            self.relationship_level_var.set("0")
+        elif relationship == "Professional Relationship":
+            self.relationship_level_var.set("3")
+        elif relationship == "Passive Friendship":
+            self.relationship_level_var.set("5")
 
     def fill_contact_form(self, contact):
         for key, entry in self.entries.items():
@@ -511,7 +508,7 @@ class ContactManager:
         self.career_dropdown['values'] = self.CAREER_OPTIONS
         self.relationship_dropdown['values'] = self.RELATIONSHIP_TYPE_OPTIONS
         self.state_dropdown['values'] = self.US_STATES
-        self.city_dropdown['values'] = self.LARGE_CITY_OPTIONS
+        self.city_dropdown['values'] = self.CITY_OPTIONS
         self.company_dropdown['values'] = self.get_company_names()
 
     def clear_contact_form(self):
@@ -534,7 +531,7 @@ class ContactManager:
         self.career_dropdown['values'] = self.CAREER_OPTIONS
         self.relationship_dropdown['values'] = self.RELATIONSHIP_TYPE_OPTIONS
         self.state_dropdown['values'] = self.US_STATES
-        self.city_dropdown['values'] = self.LARGE_CITY_OPTIONS
+        self.city_dropdown['values'] = self.CITY_OPTIONS
         self.company_dropdown['values'] = self.get_company_names()
 
     def refresh_contacts(self):
@@ -609,82 +606,73 @@ class ContactManager:
     def add_contact(self):
         data = self.get_contact_form_data()
         if not data["name"]:
-            messagebox.showerror("Error", "Name is required!")
+            messagebox.showerror("Error", "Name is required")
             return
-        # Validate last contact date format
-        if data["last_contact"]:
-            try:
-                datetime.strptime(data["last_contact"], "%Y-%m-%d")
-            except ValueError:
-                messagebox.showerror("Error", "Last Contact date must be in YYYY-MM-DD format!")
-                return
-        # Add company if it doesn't exist
-        if data.get("company"):
-            company_exists = False
-            for company in self.companies:
-                if company.get("name") == data["company"]:
-                    company_exists = True
-                    break
-            if not company_exists:
-                self.companies.append({
-                    "name": data["company"],
-                    "location": data.get("city", ""),
-                    "stage": "",
-                    "type": "",
-                    "sector": "",
-                    "website": "",
-                    "description": ""
-                })
         self.contacts.append(data)
-        self.filtered_contacts = self.contacts.copy()
         self.save_data()
+        self.update_tasks()
         self.clear_contact_form()
+        self.filtered_contacts = self.contacts.copy()
         self.refresh_contacts()
-        self.refresh_companies()  # Refresh companies to update stats
-        self.refresh_tasks()  # Refresh tasks to show new follow-ups
-        messagebox.showinfo("Success", "Contact added successfully!")
-        self.selected_contact_index = None
+        self.display_tasks()
+        messagebox.showinfo("Success", "Contact added successfully")
+
+    def update_tasks(self):
+        """Update tasks based on contacts and their last contact dates"""
+        self.tasks = []
+        today = datetime.now()
+        
+        for contact in self.contacts:
+            if contact.get("last_contact"):
+                try:
+                    last_contact = datetime.strptime(contact["last_contact"], "%Y-%m-%d")
+                    days_since = (today - last_contact).days
+                    
+                    # Add task if it's been more than 30 days
+                    if days_since > 30:
+                        self.tasks.append({
+                            "type": "contact",
+                            "description": f"Follow up with {contact['name']}",
+                            "due_date": (last_contact + timedelta(days=30)).strftime("%Y-%m-%d"),
+                            "priority": "medium"
+                        })
+                except ValueError:
+                    continue
+        
+        self.save_data()
+        self.display_tasks()  # Use display_tasks instead of refresh_tasks
+
+    def display_tasks(self):
+        """Display tasks in the tasks treeview"""
+        # Clear existing items
+        for item in self.tasks_tree.get_children():
+            self.tasks_tree.delete(item)
+            
+        # Add tasks
+        for task in self.tasks:
+            self.tasks_tree.insert("", "end", values=(
+                task["type"],
+                task["description"],
+                task["due_date"],
+                task["priority"]
+            ))
 
     def update_contact(self):
         if self.selected_contact_index is None:
-            messagebox.showerror("Error", "Please select a contact to update!")
+            messagebox.showerror("Error", "No contact selected")
             return
         data = self.get_contact_form_data()
         if not data["name"]:
-            messagebox.showerror("Error", "Name is required!")
+            messagebox.showerror("Error", "Name is required")
             return
-        # Validate last contact date format
-        if data["last_contact"]:
-            try:
-                datetime.strptime(data["last_contact"], "%Y-%m-%d")
-            except ValueError:
-                messagebox.showerror("Error", "Last Contact date must be in YYYY-MM-DD format!")
-                return
-        # Add company if it doesn't exist
-        if data.get("company"):
-            company_exists = False
-            for company in self.companies:
-                if company.get("name") == data["company"]:
-                    company_exists = True
-                    break
-            if not company_exists:
-                self.companies.append({
-                    "name": data["company"],
-                    "location": data.get("city", ""),
-                    "stage": "",
-                    "type": "",
-                    "sector": "",
-                    "website": "",
-                    "description": ""
-                })
         self.contacts[self.selected_contact_index] = data
-        self.filtered_contacts = self.contacts.copy()
         self.save_data()
-        self.refresh_contacts()
-        self.refresh_companies()  # Refresh companies to update stats
-        self.refresh_tasks()  # Refresh tasks to show updated follow-ups
+        self.update_tasks()
         self.clear_contact_form()
-        messagebox.showinfo("Success", "Contact updated successfully!")
+        self.filtered_contacts = self.contacts.copy()
+        self.refresh_contacts()
+        self.display_tasks()
+        messagebox.showinfo("Success", "Contact updated successfully")
         self.selected_contact_index = None
 
     def delete_contact(self):
@@ -724,7 +712,7 @@ class ContactManager:
         self.company_state_var = tk.StringVar()
         self.company_state_dropdown = ttk.Combobox(entry_frame, textvariable=self.company_state_var, values=self.US_STATES)
         self.company_state_dropdown.grid(row=0, column=5, sticky=tk.W, padx=5, pady=2)
-        self.company_state_dropdown.bind('<KeyRelease>', lambda e: self._autocomplete(self.company_state_dropdown, self.US_STATES))
+        self.company_state_dropdown.bind('<KeyRelease>', lambda e: self._improved_autocomplete(e, self.company_state_dropdown, self.US_STATES))
         # Stage
         ttk.Label(entry_frame, text="Stage:").grid(row=1, column=0, sticky=tk.W, padx=5, pady=2)
         self.company_stage_var = tk.StringVar()
@@ -1091,6 +1079,19 @@ class ContactManager:
             summary += f"Total Leads: {total_leads}\nTotal Professional Relationships: {total_professionals}"
         self.summary_text.delete("1.0", tk.END)
         self.summary_text.insert("1.0", summary)
+
+    def get_contact_form_data(self):
+        data = {k.lower(): self.entries[k].get().strip() for k in self.entries}
+        data["company"] = self.company_var.get().strip()
+        data["job_title"] = self.job_title_var.get()
+        data["career"] = self.career_var.get()
+        data["relationship_type"] = self.relationship_var.get()
+        data["relationship_level"] = self.relationship_level_var.get()
+        data["state"] = self.state_var.get()
+        data["city"] = self.city_var.get()
+        data["last_contact"] = self.last_contact_var.get()
+        data["notes"] = self.notes_text.get("1.0", tk.END).strip()
+        return data
 
 if __name__ == "__main__":
     root = ThemedTk(theme="arc")
