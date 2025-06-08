@@ -54,7 +54,7 @@ class ContactManager:
             "Technology", "Healthcare", "Finance", "Real Estate", "Consumer", "Energy", "Industrial", "Telecom", "Education", "Other"
         ]
         self.CITY_OPTIONS = [
-            "New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia", "San Antonio", "San Diego", "Dallas", "San Jose", "Austin", "Jacksonville", "Fort Worth", "Columbus", "Charlotte", "San Francisco", "Indianapolis", "Seattle", "Denver", "Washington", "Boston", "El Paso", "Nashville", "Detroit", "Oklahoma City", "Portland", "Las Vegas", "Memphis", "Louisville", "Baltimore", "Milwaukee", "Albuquerque", "Tucson", "Fresno", "Mesa", "Sacramento", "Atlanta", "Kansas City", "Colorado Springs", "Miami", "Raleigh", "Omaha", "Long Beach", "Virginia Beach", "Oakland", "Minneapolis", "Tulsa", "Arlington", "Tampa", "New Orleans", "Wichita", "Cleveland", "Bakersfield", "Aurora", "Anaheim", "Honolulu", "Santa Ana", "Riverside", "Corpus Christi", "Lexington", "Stockton", "Henderson", "Saint Paul", "St. Louis", "Cincinnati", "Pittsburgh", "Greensboro", "Anchorage", "Plano", "Lincoln", "Orlando", "Irvine", "Newark", "Toledo", "Durham", "Chula Vista", "Fort Wayne", "Jersey City", "St. Petersburg", "Laredo", "Madison", "Chandler", "Buffalo", "Lubbock", "Scottsdale", "Reno", "Glendale", "Gilbert", "Winston–Salem", "North Las Vegas", "Norfolk", "Chesapeake", "Garland", "Irving", "Hialeah", "Fremont", "Boise", "Richmond"
+            "New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia", "San Antonio", "San Diego", "Dallas", "San Jose", "Austin", "Jacksonville", "Fort Worth", "Columbus", "Charlotte", "San Francisco", "Indianapolis", "Seattle", "Denver", "Washington", "Boston", "El Paso", "Nashville", "Detroit", "Oklahoma City", "Portland", "Las Vegas", "Memphis", "Louisville", "Baltimore", "Milwaukee", "Albuquerque", "Tucson", "Fresno", "Mesa", "Sacramento", "Atlanta", "Kansas City", "Colorado Springs", "Miami", "Raleigh", "Omaha", "Long Beach", "Virginia Beach", "Oakland", "Minneapolis", "Tulsa", "Arlington", "Tampa", "New Orleans", "Wichita", "Cleveland", "Bakersfield", "Aurora", "Anaheim", "Honolulu", "Santa Ana", "Riverside", "Corpus Christi", "Lexington", "Stockton", "Henderson", "Saint Paul", "St. Louis", "Cincinnati", "Pittsburgh", "Greensboro", "Anchorage", "Plano", "Lincoln", "Orlando", "Irvine", "Newark", "Toledo", "Durham", "Chula Vista", "Fort Wayne", "Jersey City", "St. Petersburg", "Laredo", "Madison", "Chandler", "Buffalo", "Lubbock", "Scottsdale", "Reno", "Glendale", "Gilbert", "Winston–Salem", "North Las Vegas", "Norfolk", "Chesapeake", "Garland", "Irving", "Hialeah", "Fremont", "Boise", "Richmond", "London", "Paris", "Berlin", "Tokyo", "Beijing", "Shanghai", "Hong Kong", "Singapore", "Sydney", "Melbourne", "Toronto", "Vancouver", "Montreal", "Mexico City", "Sao Paulo", "Buenos Aires", "Cape Town", "Johannesburg", "Dubai", "Istanbul", "Moscow", "Delhi", "Mumbai", "Bangalore", "Seoul", "Bangkok", "Kuala Lumpur", "Jakarta", "Manila", "Cairo", "Lagos", "Nairobi", "Dublin", "Madrid", "Rome", "Barcelona", "Amsterdam", "Brussels", "Vienna", "Zurich", "Geneva", "Stockholm", "Oslo", "Copenhagen", "Helsinki", "Warsaw", "Prague", "Budapest", "Athens", "Lisbon", "Bratislava", "Tallinn", "Riga", "Vilnius", "Reykjavik", "Edinburgh", "Glasgow", "Belfast", "Cardiff", "Liverpool", "Manchester", "Birmingham", "Leeds", "Sheffield", "Nottingham", "Leicester", "Bristol", "Southampton", "Portsmouth", "Plymouth", "Aberdeen", "Dundee", "Inverness", "Stirling", "Perth", "Derry", "Galway", "Limerick", "Cork", "Waterford", "Kilkenny", "Sligo", "Wexford", "Tralee", "Ennis", "Killarney", "Athlone", "Mullingar", "Navan", "Carlow", "Clonmel", "Letterkenny", "Tullamore", "Ballina", "Castlebar", "Armagh", "Lisburn", "Newry", "Bangor", "Craigavon", "Newtownabbey", "Carrickfergus", "Larne", "Ballymena", "Coleraine", "Antrim", "Ballymoney", "Magherafelt", "Cookstown", "Omagh", "Strabane", "Dungannon", "Downpatrick", "Banbridge", "Warrenpoint", "Holywood", "Donaghadee", "Portadown", "Lurgan", "Moira", "Rostrevor", "Kilkeel", "Ballycastle", "Portrush", "Portstewart", "Bushmills", "Ballynahinch", "Comber", "Saintfield", "Ballyclare", "Ballygowan", "Ballywalter", "Ballyhalbert", "Ballyhornan", "Ballygalley", "Ballycarry", "Ballyeaston", "Ballynure", "Ballyrobert", "Ballymena", "Ballymoney", "Ballycastle", "Ballynahinch", "Ballyclare", "Ballygowan", "Ballywalter", "Ballyhalbert", "Ballyhornan", "Ballygalley", "Ballycarry", "Ballyeaston", "Ballynure", "Ballyrobert"
         ]
         
         # Define relationship options
@@ -383,6 +383,12 @@ class ContactManager:
                 entry = ttk.Entry(entry_frame)
                 entry.grid(row=row, column=col*2+1, sticky=tk.W+tk.E, padx=5, pady=2)
                 ttk.Label(entry_frame, text="(YYYY-MM-DD)").grid(row=row, column=col*2+2, sticky=tk.W, padx=5, pady=2)
+            elif label == "Company":
+                self.company_var = tk.StringVar()
+                self.company_dropdown = ttk.Combobox(entry_frame, textvariable=self.company_var, values=self.get_company_names())
+                self.company_dropdown.grid(row=row, column=col*2+1, sticky=tk.W+tk.E, padx=5, pady=2)
+                self.company_dropdown.bind('<KeyRelease>', lambda e: self._improved_autocomplete(self.company_dropdown, self.get_company_names()))
+                entry = self.company_dropdown
             else:
                 entry = ttk.Entry(entry_frame)
                 entry.grid(row=row, column=col*2+1, sticky=tk.W+tk.E, padx=5, pady=2)
@@ -405,10 +411,11 @@ class ContactManager:
         self.relationship_dropdown = ttk.Combobox(entry_frame, textvariable=self.relationship_var, values=self.RELATIONSHIP_TYPE_OPTIONS)
         self.relationship_dropdown.grid(row=3, column=1, sticky=tk.W+tk.E, padx=5, pady=2)
         self.relationship_dropdown.bind('<KeyRelease>', lambda e: self._improved_autocomplete(self.relationship_dropdown, self.RELATIONSHIP_TYPE_OPTIONS))
+        self.relationship_dropdown.bind('<<ComboboxSelected>>', self._suggest_relationship_level)
         # Relationship Level
         ttk.Label(entry_frame, text="Relationship Level:").grid(row=3, column=2, sticky=tk.W, padx=5, pady=2)
         self.relationship_level_var = tk.IntVar(value=3)
-        self.relationship_level_dropdown = ttk.Combobox(entry_frame, textvariable=self.relationship_level_var, values=[1,2,3,4,5], state="readonly")
+        self.relationship_level_dropdown = ttk.Combobox(entry_frame, textvariable=self.relationship_level_var, values=[0,1,2,3,4,5], state="readonly")
         self.relationship_level_dropdown.grid(row=3, column=3, sticky=tk.W+tk.E, padx=5, pady=2)
         # State
         ttk.Label(entry_frame, text="State:").grid(row=4, column=0, sticky=tk.W, padx=5, pady=2)
@@ -419,9 +426,9 @@ class ContactManager:
         # City
         ttk.Label(entry_frame, text="City:").grid(row=4, column=2, sticky=tk.W, padx=5, pady=2)
         self.city_var = tk.StringVar()
-        self.city_dropdown = ttk.Combobox(entry_frame, textvariable=self.city_var, values=self.CITY_OPTIONS)
+        self.city_dropdown = ttk.Combobox(entry_frame, textvariable=self.city_var, values=self.LARGE_CITY_OPTIONS)
         self.city_dropdown.grid(row=4, column=3, sticky=tk.W+tk.E, padx=5, pady=2)
-        self.city_dropdown.bind('<KeyRelease>', lambda e: self._improved_autocomplete(self.city_dropdown, self.CITY_OPTIONS))
+        self.city_dropdown.bind('<KeyRelease>', lambda e: self._improved_autocomplete(self.city_dropdown, self.LARGE_CITY_OPTIONS))
         # Last Contact
         ttk.Label(entry_frame, text="Last Contact:").grid(row=5, column=0, sticky=tk.W, padx=5, pady=2)
         self.last_contact_var = tk.StringVar(value=datetime.now().strftime("%Y-%m-%d"))
@@ -462,41 +469,31 @@ class ContactManager:
         xscroll.pack(fill=tk.X, side=tk.BOTTOM)
         self.contacts_tree.bind("<<TreeviewSelect>>", self.on_contact_select)
 
-    def _improved_autocomplete(self, combobox, options):
-        value = combobox.get().lower()
-        if not value:
-            combobox['values'] = options
-            return
-        
-        # Sort matches by relevance (exact matches first, then contains matches)
-        exact_matches = [item for item in options if item.lower() == value]
-        contains_matches = [item for item in options if value in item.lower() and item not in exact_matches]
-        filtered = exact_matches + contains_matches
-        
-        if filtered:
-            combobox['values'] = filtered
-            # Show dropdown list
-            combobox.event_generate('<Down>')
-        else:
-            combobox['values'] = options
+    def get_company_names(self):
+        return sorted(list(set([c.get("name", "") for c in self.companies if c.get("name")])) or [])
 
-    def get_contact_form_data(self):
-        data = {k.lower(): self.entries[k].get().strip() for k in self.entries}
-        data["job_title"] = self.job_title_var.get()
-        data["career"] = self.career_var.get()
-        data["relationship_type"] = self.relationship_var.get()
-        data["relationship_level"] = self.relationship_level_var.get()
-        data["state"] = self.state_var.get()
-        data["city"] = self.city_var.get()
-        data["last_contact"] = self.last_contact_var.get()
-        data["notes"] = self.notes_text.get("1.0", tk.END).strip()
-        return data
+    # Large US city list for city dropdown, plus a few major international cities
+    LARGE_CITY_OPTIONS = [
+        "New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia", "San Antonio", "San Diego", "Dallas", "San Jose", "Austin", "Jacksonville", "Fort Worth", "Columbus", "Charlotte", "San Francisco", "Indianapolis", "Seattle", "Denver", "Washington", "Boston", "El Paso", "Nashville", "Detroit", "Oklahoma City", "Portland", "Las Vegas", "Memphis", "Louisville", "Baltimore", "Milwaukee", "Albuquerque", "Tucson", "Fresno", "Mesa", "Sacramento", "Atlanta", "Kansas City", "Colorado Springs", "Miami", "Raleigh", "Omaha", "Long Beach", "Virginia Beach", "Oakland", "Minneapolis", "Tulsa", "Arlington", "Tampa", "New Orleans", "Wichita", "Cleveland", "Bakersfield", "Aurora", "Anaheim", "Honolulu", "Santa Ana", "Riverside", "Corpus Christi", "Lexington", "Stockton", "Henderson", "Saint Paul", "St. Louis", "Cincinnati", "Pittsburgh", "Greensboro", "Anchorage", "Plano", "Lincoln", "Orlando", "Irvine", "Newark", "Toledo", "Durham", "Chula Vista", "Fort Wayne", "Jersey City", "St. Petersburg", "Laredo", "Madison", "Chandler", "Buffalo", "Lubbock", "Scottsdale", "Reno", "Glendale", "Gilbert", "Winston–Salem", "North Las Vegas", "Norfolk", "Chesapeake", "Garland", "Irving", "Hialeah", "Fremont", "Boise", "Richmond", "Spokane", "Baton Rouge", "Des Moines", "Tacoma", "San Bernardino", "Modesto", "Fontana", "Santa Clarita", "Birmingham", "Oxnard", "Fayetteville", "Moreno Valley", "Rochester", "Glendale (AZ)", "Huntington Beach", "Salt Lake City", "Grand Rapids", "Amarillo", "Yonkers", "Aurora (IL)", "Montgomery", "Akron", "Little Rock", "Huntsville", "Augusta", "Port St. Lucie", "Grand Prairie", "Columbus (GA)", "Tallahassee", "Overland Park", "Tempe", "McKinney", "Mobile", "Cape Coral", "Shreveport", "Frisco", "Knoxville", "Worcester", "Brownsville", "Vancouver (WA)", "Fort Lauderdale", "Sioux Falls", "Ontario (CA)", "Chattanooga", "Providence", "Newport News", "Rancho Cucamonga", "Santa Rosa", "Oceanside", "Salem", "Elk Grove", "Garden Grove", "Pembroke Pines", "Eugene", "Peoria (AZ)", "Corona", "Cary", "Springfield (MO)", "Fort Collins", "Jackson", "Alexandria (VA)", "Hayward", "Lancaster (CA)", "Lakewood (CO)", "Clarksville (TN)", "Palmdale", "Salinas", "Springfield (MA)", "Hollywood (FL)", "Pasadena (TX)", "Sunnyvale", "Macon", "Kansas City (KS)", "Pomona", "Escondido", "Killeen", "Naperville", "Joliet", "Bellevue (WA)", "Rockford", "Savannah", "Paterson", "Torrance", "Bridgeport", "McAllen", "Mesquite", "Syracuse", "Midland", "Pasadena (CA)", "Murfreesboro", "Miramar", "Dayton", "Fullerton", "Olathe", "Orange (CA)", "Thornton", "Roseville (CA)", "Denton", "Waco", "Surprise", "Carrollton", "West Valley City", "Charleston (SC)", "Warren (MI)", "Hampton", "Gainesville", "Visalia", "Coral Springs", "Columbia (SC)", "Cedar Rapids", "Sterling Heights", "New Haven", "Stamford", "Concord (CA)", "Kent (WA)", "Santa Clara", "Elizabeth", "Round Rock", "Thousand Oaks", "Lafayette (LA)", "Topeka", "Athens (GA)", "Simi Valley", "Fargo", "Norman", "Columbia (MO)", "Abilene", "Wilmington (NC)", "Hartford", "Victorville", "Pearland", "Vallejo", "Ann Arbor", "Berkeley", "Allentown", "Richardson", "Odessa", "Arvada", "Cambridge (MA)", "Sugar Land", "Beaumont", "Lansing", "Evansville", "Rochester (MN)", "Independence (MO)", "Fairfield (CA)", "Provo", "Clearwater", "College Station", "West Jordan", "Carlsbad (CA)", "El Monte", "Murrieta", "Temecula", "Springfield (IL)", "Palm Bay", "Costa Mesa", "Westminster (CA)", "North Charleston", "Miami Gardens", "Manchester (NH)", "High Point", "Downey", "Clovis (CA)", "Pompano Beach", "Pueblo", "Elgin", "Lowell", "Antioch (CA)", "West Palm Beach", "Peoria (IL)", "Everett", "Wichita Falls", "Gresham", "Billings", "Inglewood", "Sparks", "San Buenaventura (Ventura)", "Jurupa Valley", "South Bend", "Renton", "Vista", "Davie", "Tuscaloosa", "Carmel (IN)", "Allen", "Yuma", "Brockton", "Compton", "Clifton", "Citrus Heights", "Livonia", "Tracy", "Alhambra",
+        # Major international cities (Canada, Mexico, UK, Israel, etc)
+        "Toronto", "Vancouver", "Montreal", "Mexico City", "Guadalajara", "Monterrey", "London", "Manchester (UK)", "Birmingham (UK)", "Jerusalem", "Tel Aviv", "Haifa"
+    ]
+
+    def _suggest_relationship_level(self, event=None):
+        rel = self.relationship_var.get().lower()
+        if "lead" in rel:
+            self.relationship_level_var.set(0)
+        elif rel == "professional relationship":
+            self.relationship_level_var.set(3)
+        elif rel == "passive friendship":
+            self.relationship_level_var.set(5)
 
     def fill_contact_form(self, contact):
         for key, entry in self.entries.items():
             value = contact.get(key.lower(), "")
             if key == "Company":
-                entry.set(value)
+                self.company_var.set(value)
+                self.company_dropdown['values'] = self.get_company_names()
             else:
                 entry.delete(0, tk.END)
                 entry.insert(0, value)
@@ -509,13 +506,13 @@ class ContactManager:
         self.last_contact_var.set(contact.get("last_contact", datetime.now().strftime("%Y-%m-%d")))
         self.notes_text.delete("1.0", tk.END)
         self.notes_text.insert(tk.END, contact.get("notes", ""))
-        
         # Update dropdown values to ensure they're visible
         self.job_title_dropdown['values'] = self.JOB_TITLE_OPTIONS
         self.career_dropdown['values'] = self.CAREER_OPTIONS
         self.relationship_dropdown['values'] = self.RELATIONSHIP_TYPE_OPTIONS
         self.state_dropdown['values'] = self.US_STATES
-        self.city_dropdown['values'] = self.CITY_OPTIONS
+        self.city_dropdown['values'] = self.LARGE_CITY_OPTIONS
+        self.company_dropdown['values'] = self.get_company_names()
 
     def clear_contact_form(self):
         for entry in self.entries.values():
@@ -532,13 +529,13 @@ class ContactManager:
         self.last_contact_var.set(datetime.now().strftime("%Y-%m-%d"))
         self.notes_text.delete("1.0", tk.END)
         self.selected_contact_index = None
-        
         # Reset dropdown values
         self.job_title_dropdown['values'] = self.JOB_TITLE_OPTIONS
         self.career_dropdown['values'] = self.CAREER_OPTIONS
         self.relationship_dropdown['values'] = self.RELATIONSHIP_TYPE_OPTIONS
         self.state_dropdown['values'] = self.US_STATES
-        self.city_dropdown['values'] = self.CITY_OPTIONS
+        self.city_dropdown['values'] = self.LARGE_CITY_OPTIONS
+        self.company_dropdown['values'] = self.get_company_names()
 
     def refresh_contacts(self):
         for item in self.contacts_tree.get_children():
